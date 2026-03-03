@@ -11,14 +11,14 @@ Download YouTube videos in MP4 format and extract high-quality audio in MP3 form
 Quick setup to download your first video:
 
 ```shell
-# Install Python dependencies
-pip install -r requirements.txt
+# Install the package
+pip install -e ".[dev]"
 
 # Install FFmpeg (Windows)
 winget install --id=Gyan.FFmpeg
 
 # Download a video
-python src/downloader.py "https://www.youtube.com/watch?v=VIDEO_ID"
+vdl "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
 This will download both MP4 video and MP3 audio to the `downloads/` folder automatically.
@@ -27,15 +27,16 @@ This will download both MP4 video and MP3 audio to the `downloads/` folder autom
 
 ### Built With
 
-- **Python 3.7+** - Core runtime environment
-- **yt-dlp >= 2024.12.7** - YouTube downloading library (fork of youtube-dl with active maintenance)
+- **Python 3.10+** - Core runtime environment
+- **yt-dlp >= 2024.1.0** - YouTube downloading library (fork of youtube-dl with active maintenance)
+- **typer >= 0.12.0** - CLI framework
 - **FFmpeg 8.0+** - Audio/video processing and conversion
 
 ### Prerequisites
 
 Before setting up the development environment, you need:
 
-1. **Python 3.7 or higher** - [Download Python](https://www.python.org/downloads/)
+1. **Python 3.10 or higher** - [Download Python](https://www.python.org/downloads/)
 2. **FFmpeg executables**:
    - Windows: [WinGet](https://learn.microsoft.com/en-us/windows/package-manager/winget/) or [Gyan.dev builds](https://www.gyan.dev/ffmpeg/builds/)
    - macOS: [Homebrew](https://brew.sh/)
@@ -49,7 +50,7 @@ Clone and set up the project:
 ```shell
 git clone https://github.com/your/youtube_downloader.git
 cd youtube_downloader/
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 **Install FFmpeg:**
@@ -72,54 +73,58 @@ sudo dnf install ffmpeg
 
 ```shell
 ffmpeg -version
-python src/downloader.py --help
+vdl --help
 ```
 
-The script will auto-create the `downloads/` directory on first run. For batch processing, create a `urls.txt` file with YouTube URLs (one per line).
+The script will auto-create the `downloads/` directory on first run. For batch processing, create a `urls.txt` file with YouTube URLs (one per line), then run:
+
+```shell
+vdl --file urls.txt
+```
 
 ### Building
 
-This is a Python script project - no build step required. However, you can package it as an executable:
+Build and package the project:
 
 ```shell
-# Install PyInstaller
-pip install pyinstaller
+# Install build tools
+pip install build
 
-# Create standalone executable
-pyinstaller --onefile --name youtube-downloader src/downloader.py
+# Create distribution
+python -m build
+
+# Verify package
+pip install twine
+python -m twine check dist/*
 ```
 
-The executable will be created in `dist/youtube-downloader.exe` (Windows) or `dist/youtube-downloader` (Unix).
+The wheel will be created in the `dist/` directory.
 
 ### Deploying / Publishing
 
-To create a distributable package:
+To create and upload a distributable package:
 
 ```shell
-# Create source distribution
-python setup.py sdist
-
-# Create wheel distribution
-python setup.py bdist_wheel
+# Build the package
+pip install build
+python -m build
 
 # Upload to PyPI (requires account)
 pip install twine
 twine upload dist/*
 ```
 
-For standalone deployment, distribute the executable from the Building section along with FFmpeg installation instructions.
-
 ## Versioning
 
 This project follows [Semantic Versioning](http://semver.org/). 
 
-Current version: **1.0.0**
+Current version: **0.1.0**
 
 For available versions, see the [releases page](https://github.com/your/youtube_downloader/releases).
 
 ## Configuration
 
-Configure download settings by editing the `DownloadConfig` class in `src/downloader.py` (lines 31-49):
+The `DownloadConfig` dataclass in `src/vdl/downloader.py` provides configurable options:
 
 ### Video Quality Options
 
@@ -167,56 +172,58 @@ https://www.youtube.com/watch?v=VIDEO_ID2
 # Lines starting with # are ignored
 ```
 
-Run without arguments to process the file:
+Run with:
 
 ```shell
-python src/downloader.py
+vdl --file urls.txt
 ```
 
 ## Tests
 
-Currently, this project does not include automated tests. Manual testing can be performed:
+Run tests with pytest:
+
+```shell
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test
+pytest tests/test_file.py::test_function
+```
+
+**Manual testing:**
 
 ```shell
 # Test single URL download
-python src/downloader.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+vdl "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
 # Test format listing
-python src/downloader.py --formats "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+vdl --formats "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
 # Test FFmpeg detection
-python src/downloader.py --setup
+vdl --setup
 
 # Verify log output
-type downloader.log  # Windows
-cat downloader.log   # Unix
+cat downloader.log
 ```
-
-**What these tests verify:**
-- FFmpeg availability and PATH configuration
-- yt-dlp video fetching capability
-- MP3 audio extraction
-- Filename sanitization and security
-- Error handling and logging
-- Duplicate file detection
 
 ## Style guide
 
-This project follows [PEP 8](https://pep8.org/) Python style guidelines:
+This project follows PEP 8 and uses ruff for linting:
 
 ```shell
 # Check code style
-pip install flake8
-flake8 src/downloader.py
+ruff check src/
 
-# Auto-format code
-pip install black
-black src/downloader.py
+# Auto-fix issues
+ruff check src/ --fix
 ```
 
 **Key conventions:**
 - 4 spaces for indentation
-- Maximum line length: 88 characters (Black default)
+- Maximum line length: 88 characters
 - Type hints using `dataclass` decorators
 - Docstrings for all public functions
 - Comprehensive error handling
@@ -227,16 +234,21 @@ black src/downloader.py
 ### Command Line Interface
 
 ```shell
-python src/downloader.py [OPTIONS] [URL]
+vdl [OPTIONS] [URL]
 ```
 
 **Arguments:**
-- `URL` - YouTube video URL (optional if using urls.txt)
+- `URL` - YouTube video URL (optional if using --file)
 
 **Options:**
-- `--formats <URL>` - Display available video/audio formats for a URL
-- `--help` - Show help message and current configuration
+- `--file, -f <FILE>` - File containing URLs to download (default: urls.txt)
+- `--quality, -q <QUALITY>` - Video quality: best, worst, or resolution like 720p (default: best)
+- `--output, -o <DIR>` - Output directory (default: downloads)
+- `--mp3` - Download audio only as MP3
+- `--mp4` - Download video only as MP4
+- `--formats <URL>` - Display available formats for a URL
 - `--setup` - Display FFmpeg installation guide
+- `--help` - Show help message
 
 ### Core Classes
 
@@ -247,9 +259,6 @@ python src/downloader.py [OPTIONS] [URL]
 **`DownloadConfig`**
 - Configuration dataclass for download settings
 - Automatically creates output directory on initialization
-
-**`CommandLineInterface`**
-- CLI handler for processing command-line arguments
 
 ### Key Methods
 
@@ -282,11 +291,13 @@ python src/downloader.py [OPTIONS] [URL]
 - Validates YouTube URL format
 - Supports standard videos, mobile URLs, and playlists
 
-## Database
+## Data Storage
 
 This project does not use a database. All state is file-based:
 
 - **downloads/** - Output directory for MP4 and MP3 files
+  - **downloads/video/** - Video files
+  - **downloads/audio/** - Audio files
 - **urls.txt** - Optional input file for batch processing
 - **downloader.log** - Execution logs and error tracking
 
