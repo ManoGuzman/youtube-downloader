@@ -12,7 +12,7 @@ description = "Download YouTube and Facebook videos as MP4 and MP3"
 requires-python = ">=3.10"
 dependencies = [
     "yt-dlp>=2024.1.0",
-    "typer[all]>=0.12.0",   # incluye Rich automáticamente
+    "typer[all]>=0.12.0",
 ]
 
 [project.scripts]
@@ -23,6 +23,7 @@ dev = [
     "pytest>=8.0",
     "pytest-cov",
     "ruff",
+    "pre-commit",
 ]
 
 [tool.pytest.ini_options]
