@@ -1,3 +1,5 @@
+"""Command-line interface for the video downloader."""
+
 import typer
 from typing import Optional
 from pathlib import Path
