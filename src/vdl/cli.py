@@ -32,6 +32,10 @@ def main(
     ),
     setup: bool = typer.Option(False, "--setup", help="Show FFmpeg setup instructions"),
 ) -> None:
+    if mp3_only and mp4_only:
+        typer.echo("ERROR: Cannot use both --mp3 and --mp4", err=True)
+        raise typer.Exit(1)
+
     config = DownloadConfig(
         output_path=output,
         video_quality=quality,
@@ -49,12 +53,16 @@ def main(
         downloader.show_available_formats(url)
         return
 
-    if url:
-        downloader.process_url(url)
-    elif Path(url_file).exists():
-        downloader.process_url_file(url_file)
-    else:
-        typer.echo(f"ERROR: URL file not found: {url_file}", err=True)
+    try:
+        if url:
+            downloader.process_url(url)
+        elif Path(url_file).exists():
+            downloader.process_url_file(url_file)
+        else:
+            typer.echo(f"ERROR: URL file not found: {url_file}", err=True)
+            raise typer.Exit(1)
+    except Exception as e:
+        typer.echo(f"ERROR: {e}", err=True)
         raise typer.Exit(1)
 
 
