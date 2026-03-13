@@ -1,10 +1,11 @@
 """Command-line interface for the video downloader."""
 
-import typer
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
-from vdl.downloader import YouTubeDownloader, DownloadConfig
+import typer
+
+from vdl.downloader import DownloadConfig, YouTubeDownloader
 
 app = typer.Typer(
     name="vdl",
