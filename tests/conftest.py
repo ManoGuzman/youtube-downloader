@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from vdl.downloader import YouTubeDownloader, DownloadConfig
+from vdl.downloader import DownloadConfig, YouTubeDownloader
 
 
 @pytest.fixture

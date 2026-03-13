@@ -4,9 +4,9 @@ import tempfile
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
-from typer.testing import CliRunner
 
 import pytest
+from typer.testing import CliRunner
 
 from vdl.cli import app
 from vdl.downloader import YouTubeDownloader

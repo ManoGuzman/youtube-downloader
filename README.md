@@ -116,7 +116,7 @@ twine upload dist/*
 
 ## Versioning
 
-This project follows [Semantic Versioning](http://semver.org/). 
+This project follows [Semantic Versioning](http://semver.org/).
 
 Current version: **0.1.0**
 

@@ -17,11 +17,10 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 # Third-party imports
 import yt_dlp
-
 
 # ============================================================================
 # CONFIGURATION SECTION - Modify these settings as needed
